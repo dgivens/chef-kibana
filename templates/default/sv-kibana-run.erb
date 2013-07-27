@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec ruby<%= node['kibana']['rubyversion'] %> <%= node['kibana']['base_dir'] %>/kibana.rb 2>&1

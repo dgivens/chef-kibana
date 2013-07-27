@@ -55,16 +55,26 @@ bash 'kibana bundle install' do
   code 'bundle install'
 end
 
-service 'kibana' do
-  provider Chef::Provider::Service::Upstart
-  supports :start => true, :restart => true, :stop => true, :status => true
-  action :nothing
+if node['kibana']['init_method'] == 'upstart'
+  service_notify = "service['kibana']"
+  service 'kibana' do
+    provider Chef::Provider::Service::Upstart
+    supports :start => true, :restart => true, :stop => true, :status => true
+    action :nothing
+  end
+elsif node['kibana']['init_method'] == 'runit'
+  service_notify = "runit_service['kibana']"
+  runit_service 'kibana' do
+    default_logger true
+  end
+else
+  Chef::Log.fatal("Unsupported init method: #{node['kibana']['init_method']}")
 end
 
 template '/etc/init/kibana.conf' do
   source 'upstart.conf.erb'
   mode '0600'
-  notifies :restart, 'service[kibana]', :delayed
+  notifies :restart, service_notify, :delayed
 end
 
 template "#{node['kibana']['base_dir']}/KibanaConfig.rb" do
@@ -72,7 +82,7 @@ template "#{node['kibana']['base_dir']}/KibanaConfig.rb" do
   user node['kibana']['user']
   group node['kibana']['group']
   mode '0600'
-  notifies :restart, 'service[kibana]', :delayed
+  notifies :restart, service_notify, :delayed
 end
 
 service 'kibana' do

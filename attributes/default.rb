@@ -5,6 +5,7 @@ default['kibana']['group'] = 'kibana'
 default['kibana']['git']['url'] = 'https://github.com/rashidkpc/Kibana.git'
 default['kibana']['git']['reference'] = 'v0.2.0'
 default['kibana']['rubyversion'] = '1.9.1'
+default['kibana']['init_method'] = 'upstart'
 
 #KibanaConfig Options
 default['kibana']['interface'] = node['ipaddress']
